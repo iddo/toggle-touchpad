@@ -1,47 +1,93 @@
-
 const St = imports.gi.St;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
-const Tweener = imports.ui.tweener;
+const GLib = imports.gi.GLib;
+const Gio = imports.gi.Gio;
 
-let text, button;
+let button, icon;
 
-function _hideHello() {
-    Main.uiGroup.remove_actor(text);
-    text = null;
+function _cmdstdout(cmd) {
+    let stdout = "";
+    let [res, pid, in_fd, out_fd, err_fd] = GLib.spawn_async_with_pipes(
+        null, cmd, null, GLib.SpawnFlags.SEARCH_PATH, null);
+    let out_reader = new Gio.DataInputStream(
+        {base_stream: new Gio.UnixInputStream({fd: out_fd})});
+    while (true) {
+        let [out, size] = out_reader.read_line(null);
+        if (size > 1) {
+            stdout += out.toString() + "\n";
+        } else {
+            break;
+        }
+    }
+    return stdout;
 }
 
-function _showHello() {
-    if (!text) {
-        text = new St.Label({ style_class: 'helloworld-label', text: "Hello, world!" });
-        Main.uiGroup.add_actor(text);
+function _get_touchpad_id() {
+    let id = 0;
+    let xinput_lines = _cmdstdout(["xinput"]);
+    xinput_lines.split("\n").forEach(function(line) {
+        if (line.search(/touchpad/i) != -1) {
+            id = parseInt(line.match(/id=(\d+)/)[1]);
+        }
+    });
+    return id;
+}
+
+function _is_enabled(touchpad_id) {
+    let enabled = false;
+    let out = _cmdstdout(["xinput", "list-props", touchpad_id.toString()]);
+    out.split("\n").forEach(function(line) {
+        if (line.search(/^\s*Device Enabled \(\d+\):\s+[01]$/) != -1) {
+            enabled = line.match(
+                /^\s*Device Enabled \(\d+\):\s+([01])$/)[1] == '1';
+        }
+    });
+    return enabled;
+}
+
+function _disable_touchpad(touchpad_id) {
+    _cmdstdout(["xinput", "disable", touchpad_id.toString()]);
+}
+
+function _enable_touchpad(touchpad_id) {
+    _cmdstdout(["xinput", "enable", touchpad_id.toString()]);
+}
+
+function _toggle_touchpad() {
+    let id = _get_touchpad_id();
+    if (_is_enabled(id)) {
+        _disable_touchpad(id);
+        return false;
+    } else {
+        _enable_touchpad(id);
+        return true;
     }
-
-    text.opacity = 255;
-
-    let monitor = Main.layoutManager.primaryMonitor;
-
-    text.set_position(monitor.x + Math.floor(monitor.width / 2 - text.width / 2),
-                      monitor.y + Math.floor(monitor.height / 2 - text.height / 2));
-
-    Tweener.addTween(text,
-                     { opacity: 0,
-                       time: 2,
-                       transition: 'easeOutQuad',
-                       onComplete: _hideHello });
 }
 
 function init() {
-    button = new St.Bin({ style_class: 'panel-button',
-                          reactive: true,
-                          can_focus: true,
-                          x_fill: true,
-                          y_fill: false,
-                          track_hover: true });
-    let icon = new St.Icon({ icon_name: 'system-run-symbolic',
-                             style_class: 'system-status-icon' });
-
+    button = new St.Bin(
+        {
+            style_class: 'panel-button',
+            reactive: true,
+            can_focus: true,
+            x_fill: true,
+            y_fill: false,
+            track_hover: true});
+    if (_is_enabled(_get_touchpad_id())) {
+        icon = new St.Icon({style_class: "touchpad-icon"});
+    } else {
+        icon = new St.Icon({style_class: "touchpad-icon-disabled"});
+    }
     button.set_child(icon);
-    button.connect('button-press-event', _showHello);
+    button.connect('button-press-event', function(){
+        if (_toggle_touchpad()) {
+            icon = new St.Icon({style_class: "touchpad-icon"});
+        } else {
+            icon = new St.Icon({style_class: "touchpad-icon-disabled"});
+        }
+        button.set_child(icon);
+    });
 }
 
 function enable() {
