@@ -27,7 +27,7 @@ function _get_touchpad_id() {
     let id = 0;
     let xinput_lines = _cmdstdout(["xinput"]);
     xinput_lines.split("\n").forEach(function(line) {
-        if (line.search(/touchpad/i) != -1) {
+        if (line.search(/touchpad/i) != -1 || line.search(/ELAN/) != -1) {
             id = parseInt(line.match(/id=(\d+)/)[1]);
         }
     });
