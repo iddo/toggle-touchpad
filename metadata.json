@@ -1,5 +1,5 @@
 {
-	"shell-version": ["3.14.3"],
+	"shell-version": ["3.14"],
 	"uuid": "toggle-touchpad@martin.kopta.eu",
 	"name": "Toggle Touchpad",
 	"description": "Switch touchpad on and off"
