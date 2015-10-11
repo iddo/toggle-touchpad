@@ -13,7 +13,7 @@ Download latest release (https://github.com/mkopta/toggle-touchpad/releases/down
 
 Commands to install
 ```
-rm -f ~/.local/share/gnome-shell/extensions/toggle-touchpad@martin.kopta.eu
+rm -rf ~/.local/share/gnome-shell/extensions/toggle-touchpad@martin.kopta.eu
 mkdir -p ~/.local/share/gnome-shell/extensions/toggle-touchpad@martin.kopta.eu
 cd ~/.local/share/gnome-shell/extensions/toggle-touchpad@martin.kopta.eu
 curl -LO https://github.com/mkopta/toggle-touchpad/releases/download/v1.3/toggle-touchpad-v1.3.zip
