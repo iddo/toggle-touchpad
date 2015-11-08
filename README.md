@@ -9,16 +9,16 @@ Make sure you have `xinput` installed (`sudo apt-get install xinput`).
 
 ### How to install manually
 
-Download latest release (https://github.com/mkopta/toggle-touchpad/releases/download/v1.3/toggle-touchpad-v1.3.zip) and unpack it to this directory `~/.local/share/gnome-shell/extensions/toggle-touchpad@martin.kopta.eu`. Restart the gnome shell by ALT+F2, type `r` and enter.
+Download latest release (https://github.com/mkopta/toggle-touchpad/releases/download/v1.4/toggle-touchpad-v1.4.zip) and unpack it to this directory `~/.local/share/gnome-shell/extensions/toggle-touchpad@martin.kopta.eu`. Restart the gnome shell by ALT+F2, type `r` and enter.
 
 Commands to install
 ```
 rm -rf ~/.local/share/gnome-shell/extensions/toggle-touchpad@martin.kopta.eu
 mkdir -p ~/.local/share/gnome-shell/extensions/toggle-touchpad@martin.kopta.eu
 cd ~/.local/share/gnome-shell/extensions/toggle-touchpad@martin.kopta.eu
-curl -LO https://github.com/mkopta/toggle-touchpad/releases/download/v1.3/toggle-touchpad-v1.3.zip
-unzip toggle-touchpad-v1.3.zip
-rm toggle-touchpad-v1.3.zip
+curl -LO https://github.com/mkopta/toggle-touchpad/releases/download/v1.4/toggle-touchpad-v1.4.zip
+unzip toggle-touchpad-v1.4.zip
+rm toggle-touchpad-v1.4.zip
 ```
 
 Now ALT+F2, type `r` and enter.
