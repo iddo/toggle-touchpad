@@ -23,46 +23,25 @@ function _cmdstdout(cmd) {
     return stdout;
 }
 
-function _get_touchpad_id() {
-    let id = 0;
-    let xinput_lines = _cmdstdout(["xinput"]);
-    xinput_lines.split("\n").forEach(function(line) {
-        if (line.search(/touchscreen/i) == -1) {
-            if (line.search(/touchpad/i) != -1 || line.search(/ELAN/) != -1) {
-                id = parseInt(line.match(/id=(\d+)/)[1]);
-            }
-        }
-    });
-    return id;
+function _is_enabled() {
+    let out = _cmdstdout(["gsettings", "get", "org.gnome.settings-daemon.peripherals.touchpad", "touchpad-enabled"]);
+    return out.indexOf("true") != -1;
 }
 
-function _is_enabled(touchpad_id) {
-    let enabled = false;
-    let out = _cmdstdout(["xinput", "list-props", touchpad_id.toString()]);
-    out.split("\n").forEach(function(line) {
-        if (line.search(/^\s*Device Enabled \(\d+\):\s+[01]$/) != -1) {
-            enabled = line.match(
-                /^\s*Device Enabled \(\d+\):\s+([01])$/)[1] == '1';
-        }
-    });
-    return enabled;
+function _disable_touchpad() {
+	_cmdstdout(["gsettings", "set", "org.gnome.settings-daemon.peripherals.touchpad", "touchpad-enabled", "false"]);
 }
 
-function _disable_touchpad(touchpad_id) {
-    _cmdstdout(["xinput", "disable", touchpad_id.toString()]);
-}
-
-function _enable_touchpad(touchpad_id) {
-    _cmdstdout(["xinput", "enable", touchpad_id.toString()]);
+function _enable_touchpad() {
+	_cmdstdout(["gsettings", "set", "org.gnome.settings-daemon.peripherals.touchpad", "touchpad-enabled", "true"]);
 }
 
 function _toggle_touchpad() {
-    let id = _get_touchpad_id();
-    if (_is_enabled(id)) {
-        _disable_touchpad(id);
+    if (_is_enabled()) {
+        _disable_touchpad();
         return false;
     } else {
-        _enable_touchpad(id);
+        _enable_touchpad();
         return true;
     }
 }
@@ -76,7 +55,7 @@ function init() {
             x_fill: true,
             y_fill: false,
             track_hover: true});
-    if (_is_enabled(_get_touchpad_id())) {
+    if (_is_enabled()) {
         icon = new St.Icon({style_class: "touchpad-icon"});
     } else {
         icon = new St.Icon({style_class: "touchpad-icon-disabled"});
